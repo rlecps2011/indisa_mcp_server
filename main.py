@@ -23,7 +23,7 @@ def get_status():
 # --- Endpoint raiz opcional ---
 @app.get("/")
 def root():
-    return {"status": "ok!", "mensagens": ["get_mensagem", "get_status"]}
+    return {"status": "ok!!!", "mensagens": ["get_mensagem", "get_status"]}
 
 if __name__ == "__main__":
     import uvicorn
