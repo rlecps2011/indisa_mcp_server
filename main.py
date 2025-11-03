@@ -26,8 +26,18 @@ def get_status():
 async def root():
     return {
         "tools": [
-            {"name": "get_mensagem", "description": "Retorna mensagem simples para teste da IA", "endpoint": "/get_mensagem"},
-            {"name": "get_status", "description": "Retorna status do servidor para a IA", "endpoint": "/get_status"}
+            {
+                "name": "get_mensagem",
+                "description": "Retorna mensagem simples para teste da IA",
+                "endpoint": "/get_mensagem",
+                "method": "GET"
+            },
+            {
+                "name": "get_status",
+                "description": "Retorna status do servidor para a IA",
+                "endpoint": "/get_status",
+                "method": "GET"
+            }
         ]
     }
 
