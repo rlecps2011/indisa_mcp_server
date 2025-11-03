@@ -1,56 +1,26 @@
-import os
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
+from fastapi import FastAPI
 from openai_mcp import MCPServer, Context
-from db import get_db_session
-from models import Cliente
-from dotenv import load_dotenv
 
-load_dotenv()  # loads .env if present
-
-app = FastAPI(title="indisa_mcp_server - Azure SQL (MCP)")
+# Cria app FastAPI + servidor MCP
+app = FastAPI(title="indisa_mcp_server - Minimal")
 mcp = MCPServer(name="indisa_mcp_server", version="1.0")
 
-# Simple Pydantic model for HTTP REST endpoint payload/responses
-class ClienteOut(BaseModel):
-    id: int
-    nome: str
-    cidade: str | None = None
-    email: str | None = None
-
-def cliente_to_dict(cliente: Cliente) -> dict:
-    return {
-        "id": cliente.id,
-        "nome": cliente.nome,
-        "cidade": cliente.cidade,
-        "email": cliente.email,
-    }
-
-# MCP tool: get_cliente
+# --- Ferramenta MCP simples ---
 @mcp.tool(
-    name="get_cliente",
-    description="Recupera informações de um cliente pelo ID no banco de dados Azure SQL. Retorna campos id, nome, cidade e email."
+    name="get_mensagem",
+    description="Retorna uma mensagem simples para teste do protocolo MCP."
 )
-def get_cliente(context: Context, id: int):
-    """MCP-exposed function. The LLM can call this directly via MCP client/sdk."""
-    with get_db_session() as session:
-        cliente = session.query(Cliente).filter(Cliente.id == id).one_or_none()
-        if not cliente:
-            return {"error": "cliente_nao_encontrado", "id": id}
-        return cliente_to_dict(cliente)
+def get_mensagem(context: Context):
+    return {"mensagem": "Olá! Este servidor MCP está funcionando 🚀"}
 
-# Optional: expose a REST endpoint for direct HTTP use / debugging
-@app.get("/clientes/{id}", response_model=ClienteOut)
-def get_cliente_http(id: int):
-    with get_db_session() as session:
-        cliente = session.query(Cliente).filter(Cliente.id == id).one_or_none()
-        if not cliente:
-            raise HTTPException(status_code=404, detail="Cliente não encontrado")
-        return cliente_to_dict(cliente)
+# --- Endpoint HTTP opcional (para debug manual) ---
+@app.get("/")
+def root():
+    return {"status": "ok", "mensagem": "Servidor MCP ativo"}
 
-# Register MCP tools into FastAPI so MCP server endpoints are exposed
+# Integra FastAPI e MCP
 mcp.register_api(app)
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("main:app", host="0.0.0.0", port=int(os.getenv("PORT", 8000)), reload=True)
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
