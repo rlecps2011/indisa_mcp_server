@@ -10,7 +10,7 @@ def mcp_tool(path, description):
         return func
     return decorator
 
-# --- Tool 1 ---
+# --- Tool 1 - ---
 @mcp_tool("/get_mensagem", "Retorna mensagem simples para teste da IA")
 def get_mensagem():
     return {"mensagem": "Olá! Esta é a primeira tool 🚀"}
