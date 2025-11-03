@@ -1,26 +1,26 @@
 from fastapi import FastAPI
-from openai_mcp import MCPServer, Context
 
-# Cria app FastAPI + servidor MCP
-app = FastAPI(title="indisa_mcp_server - Minimal")
-mcp = MCPServer(name="indisa_mcp_server", version="1.0")
+app = FastAPI(title="indisa_mcp_server - 2 tools")
 
-# --- Ferramenta MCP simples ---
-@mcp.tool(
-    name="get_mensagem",
-    description="Retorna uma mensagem simples para teste do protocolo MCP."
-)
-def get_mensagem(context: Context):
-    return {"mensagem": "Olá! Este servidor MCP está funcionando 🚀"}
+# --- Helper decorator para MCP tools ---
+def mcp_tool(path, description):
+    def decorator(func):
+        app.get(path)(func)  # registra rota FastAPI
+        func.context = description  # opcional: mantém contexto
+        return func
+    return decorator
 
-# --- Endpoint HTTP opcional (para debug manual) ---
+# --- Tool 1 ---
+@mcp_tool("/get_mensagem", "Retorna mensagem simples para teste da IA")
+def get_mensagem():
+    return {"mensagem": "Olá! Esta é a primeira tool 🚀"}
+
+# --- Tool 2 ---
+@mcp_tool("/get_status", "Retorna status do servidor para a IA")
+def get_status():
+    return {"status": "Servidor ativo", "uptime": "24h"}  # exemplo fixo
+
+# --- Endpoint raiz opcional ---
 @app.get("/")
 def root():
-    return {"status": "ok", "mensagem": "Servidor MCP ativo"}
-
-# Integra FastAPI e MCP
-mcp.register_api(app)
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    return {"status": "ok", "mensagens": ["get_mensagem", "get_status"]}
