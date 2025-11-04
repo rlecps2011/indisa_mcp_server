@@ -30,6 +30,10 @@ def get_status():
 async def root():
     return {"message": "Bem-vindo ao indisa_mcp_server!"}
 
+def main():
+    # Initialize and run the server
+    mcp.run(transport='stdio')
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("main:app", host="0.0.0.0", port=8000)
