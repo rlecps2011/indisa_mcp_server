@@ -1,7 +1,8 @@
 from fastapi import FastAPI
+from mcp.server.fastmcp import FastMCP
 
 app = FastAPI(title="indisa_mcp_server - 2 tools")
-
+mcp = FastMCP("Demo")
 
 # --- Helper decorator para MCP tools ---
 def mcp_tool(path, description):
@@ -12,34 +13,22 @@ def mcp_tool(path, description):
     return decorator
 
 # --- Tool 1 - ---
-@mcp_tool("/get_mensagem", "Retorna mensagem simples para teste da IA")
+
+@mcp.tool()
 def get_mensagem():
+    """Mensagem de Boas Vindas"""
     return {"mensagem": "Olá! Esta é a primeira tool 🚀"}
 
 # --- Tool 2 ---
-@mcp_tool("/get_status", "Retorna status do servidor para a IA")
+@mcp.tool()
 def get_status():
+    """Retorna status do servidor para a IA"""
     return {"status": "Servidor ativo", "uptime": "24h"}  # exemplo fixo
 
 # --- Endpoint raiz opcional ---
 @app.get("/")
 async def root():
-    return {
-        "tools": [
-            {
-                "name": "get_mensagem",
-                "description": "Retorna mensagem simples para teste da IA",
-                "endpoint": "/get_mensagem",
-                "method": "GET"
-            },
-            {
-                "name": "get_status",
-                "description": "Retorna status do servidor para a IA",
-                "endpoint": "/get_status",
-                "method": "GET"
-            }
-        ]
-    }
+    return {"message": "Bem-vindo ao indisa_mcp_server!"}
 
 if __name__ == "__main__":
     import uvicorn
